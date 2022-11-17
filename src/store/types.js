@@ -1,4 +1,5 @@
 export const FETCH_PRESTATIONS = "LIST_PRESTATIONS";
+export const LIST_PRESTATIONS = "listPrestations";
 export const POST_PRESTATION = "POST_PRESTATION";
 export const UPDATE_PROFILE = "UPDATE_PROFILE";
 export const SWITCH_USER = "SWITCH_USER";

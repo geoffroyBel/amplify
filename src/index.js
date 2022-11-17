@@ -5,6 +5,7 @@ import store from "./store";
 import withRoot from "./withRoot";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
+import "./configureAmplify";
 
 const Home = withRoot(() => (
 	<Provider store={store}>

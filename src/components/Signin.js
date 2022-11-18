@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -16,6 +16,7 @@ import { useFormik } from "formik";
 import { connect } from "react-redux";
 import * as yup from "yup";
 import * as authActions from "../store/actions/auth";
+import * as awsAuthActions from "../store/actions/awsAuth";
 import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
@@ -45,7 +46,7 @@ const validationSchema = yup.object({
 		.required("Password is required"),
 });
 
-const Signin = ({ signIn }) => {
+const Signin = ({ signIn, signOut }) => {
 	const navigate = useNavigate();
 	const formik = useFormik({
 		initialValues: {
@@ -59,6 +60,9 @@ const Signin = ({ signIn }) => {
 			signIn(values, () => navigate("/home"));
 		},
 	});
+	useEffect(() => {
+		signOut();
+	}, []);
 
 	const containerVariants = {
 		hidden: {
@@ -189,4 +193,4 @@ const Signin = ({ signIn }) => {
 	);
 };
 
-export default connect(null, authActions)(Signin);
+export default connect(null, awsAuthActions)(Signin);

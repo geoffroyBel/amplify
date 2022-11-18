@@ -16,6 +16,7 @@ import { useFormik, useField } from "formik";
 import { connect } from "react-redux";
 import * as Yup from "yup";
 import * as authActions from "../store/actions/auth";
+import * as awsAuthActions from "../store/actions/awsAuth";
 import { useNavigate } from "react-router-dom";
 
 function Copyright(props) {
@@ -52,14 +53,17 @@ const MyTextInput = ({ label, ...props }) => {
 	);
 };
 const SignupConfirm = ({ signUpConfirm, auth }) => {
-	const { user } = auth;
+	const { user = { id: null } } = auth;
 	const navigate = useNavigate();
 
 	const formik = useFormik({
 		initialValues: { confirmCode: "" },
 		validationSchema: validationSchema,
 		onSubmit: (values) => {
-			signUpConfirm({ ...values, userId: user.id }, () => navigate("/home"));
+			signUpConfirm(
+				{ ...values, userId: user.id, username: user.username },
+				() => navigate("/home")
+			);
 		},
 	});
 	const containerVariants = {
@@ -164,4 +168,4 @@ const SignupConfirm = ({ signUpConfirm, auth }) => {
 function mapStateToProps({ auth }) {
 	return { auth };
 }
-export default connect(mapStateToProps, authActions)(SignupConfirm);
+export default connect(mapStateToProps, awsAuthActions)(SignupConfirm);

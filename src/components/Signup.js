@@ -20,6 +20,8 @@ import * as Yup from "yup";
 import { minWidth } from "@mui/system";
 import { connect } from "react-redux";
 import * as authActions from "../store/actions/auth";
+import * as awsAuthActions from "../store/actions/awsAuth";
+
 const containerVariants = {
 	hidden: {
 		x: "-100vw",
@@ -347,4 +349,4 @@ const Signup = ({ signUp, confirmSignUp }) => {
 		</Container>
 	);
 };
-export default connect(null, authActions)(Signup);
+export default connect(null, awsAuthActions)(Signup);

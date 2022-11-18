@@ -1,9 +1,11 @@
+export const AWS_SIGN_IN = "AWS_SIGN_IN";
 export const FETCH_PRESTATIONS = "LIST_PRESTATIONS";
 export const LIST_PRESTATIONS = "listPrestations";
 export const POST_PRESTATION = "POST_PRESTATION";
 export const UPDATE_PROFILE = "UPDATE_PROFILE";
 export const SWITCH_USER = "SWITCH_USER";
 export const AWS_SIGN_UP = "AWS_SIGN_UP";
+export const ERROR_AUTH = "ERROR_AUTH";
 export const AWS_SIGN_UP_CONFIRMATION = "AWS_SIGN_UP_CONFIRMATION";
 export const SIGN_UP = "SIGN_UP";
 export const SIGN_IN = "SIGN_IN";

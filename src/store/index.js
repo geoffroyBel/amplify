@@ -9,3 +9,4 @@ export default createStore(
 	{},
 	applyMiddleware(reduxThunk, tokenMiddleware)
 );
+export { default as AmplifyBridge } from "./AmplifyBridge";

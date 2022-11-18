@@ -1,5 +1,11 @@
 import User from "../../models/User";
-import { SIGN_IN, FETCH_USER, SIGN_UP } from "../types";
+import {
+	SIGN_IN,
+	FETCH_USER,
+	SIGN_UP,
+	AWS_SIGN_IN,
+	SWITCH_USER,
+} from "../types";
 
 const initialStates = {
 	error: null,
@@ -11,6 +17,20 @@ const initialStates = {
 
 export default (state = initialStates, action) => {
 	switch (action.type) {
+		case AWS_SIGN_IN:
+			return {
+				...state,
+				user:
+					action.payload &&
+					new User(
+						action.payload.attributes.sub,
+						action.payload.username,
+						action.payload.attributes.email
+					),
+				token: "no need",
+				error: null,
+				loading: false,
+			};
 		case SIGN_IN:
 			return {
 				...state,
@@ -20,14 +40,24 @@ export default (state = initialStates, action) => {
 			};
 		case FETCH_USER:
 		case SIGN_UP:
+			console.log("signup new user");
+			console.log(action.payload);
+			console.log(
+				new User(
+					action.payload.id || null,
+					action.payload.username,
+					action.payload.email || null,
+					null
+				)
+			);
 			return {
 				...state,
 				error: null,
 				loading: false,
 				user: new User(
-					action.payload.id,
+					action.payload.id || null,
 					action.payload.username,
-					action.payload.email,
+					action.payload.email || null,
 					null
 				),
 			};

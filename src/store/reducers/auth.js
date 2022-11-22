@@ -12,6 +12,7 @@ const initialStates = {
 	token: null,
 	id: null,
 	user: null,
+	temporyUser: null,
 	loading: false,
 };
 
@@ -40,26 +41,18 @@ export default (state = initialStates, action) => {
 			};
 		case FETCH_USER:
 		case SIGN_UP:
-			console.log("signup new user");
-			console.log(action.payload);
-			console.log(
-				new User(
-					action.payload.id || null,
-					action.payload.username,
-					action.payload.email || null,
-					null
-				)
+			const temporyUser = new User(
+				action.payload.id || null,
+				action.payload.username,
+				action.payload.email || null,
+				null
 			);
 			return {
 				...state,
 				error: null,
 				loading: false,
-				user: new User(
-					action.payload.id || null,
-					action.payload.username,
-					action.payload.email || null,
-					null
-				),
+				temporyUser: temporyUser,
+				user: temporyUser,
 			};
 		// case SIGN_UP:
 		// 	return {

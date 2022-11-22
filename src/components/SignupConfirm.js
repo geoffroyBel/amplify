@@ -53,7 +53,8 @@ const MyTextInput = ({ label, ...props }) => {
 	);
 };
 const SignupConfirm = ({ signUpConfirm, auth }) => {
-	const { user = { id: null } } = auth;
+	//const { user = { id: null } } = auth;
+	const { temporyUser: user } = auth;
 	const navigate = useNavigate();
 
 	const formik = useFormik({

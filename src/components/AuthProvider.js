@@ -6,7 +6,7 @@ const excludeRoutes = ["/signin", "/signup", "/signupConfirm"];
 export default function AuthProvider({ location }) {
 	const navigate = useNavigate();
 	const { pathname } = location;
-	const { token, user } = useSelector(({ auth }) => auth);
+	const { token, temporyUser: user } = useSelector(({ auth }) => auth);
 	useEffect(() => {
 		//si il y a token laisser la navigation se faire
 		//car tt requette avec rtr token expired or not found
@@ -16,9 +16,9 @@ export default function AuthProvider({ location }) {
 			navigate("/signin");
 		}
 		// aws noti auth always set user to null untill
-		// else if (pathname === "/signupConfirm" && !user*) {
-		// 	navigate("/signup");
-		// }
+		else if (pathname === "/signupConfirm" && !user) {
+			navigate("/signup");
+		}
 	}, [pathname, token]);
 	return <Outlet />;
 }

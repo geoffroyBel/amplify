@@ -14,10 +14,11 @@ export default function AuthProvider({ location }) {
 
 		if (!token && !excludeRoutes.includes(pathname)) {
 			navigate("/signin");
-		} else if (pathname === "/signupConfirm" /*&& !user*/) {
-			// aws noti auth always set user to null untill log
-			navigate("/signup");
 		}
+		// aws noti auth always set user to null untill
+		// else if (pathname === "/signupConfirm" && !user*) {
+		// 	navigate("/signup");
+		// }
 	}, [pathname, token]);
 	return <Outlet />;
 }

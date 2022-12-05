@@ -25,7 +25,7 @@ if (process.env.ENV === "prod") {
 	companyTable = "Company-dp3c7ycdm5cljmekfvj2cpva3q-main";
 	// Stripe parameters
 	// stripe = require("stripe")("sk_live_********");
-	// endpointSecret = "whsec_*******";
+	endpointSecret = "whsec_dsrWDo8CMartpgO81py532GUHMQN8EmD";
 }
 var app = express();
 //app.use(bodyParser.json())

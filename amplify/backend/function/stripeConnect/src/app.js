@@ -22,7 +22,7 @@ var docClient = new aws.DynamoDB.DocumentClient();
 if (process.env.ENV === "prod") {
 	// Set prod env
 	console.log("Prod env");
-	companyTable = "Company-kvoqldofbzcixpevne7w6kpdqu-prod";
+	companyTable = "Company-dp3c7ycdm5cljmekfvj2cpva3q-main";
 	// Stripe parameters
 	// stripe = require("stripe")("sk_live_********");
 	// endpointSecret = "whsec_*******";

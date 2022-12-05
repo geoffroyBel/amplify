@@ -1,5 +1,6 @@
 var aws = require("aws-sdk");
 var ddb = new aws.DynamoDB();
+
 exports.handler = async (event, context) => {
 	let date = new Date();
 	if (event.request.userAttributes.sub) {
@@ -12,7 +13,7 @@ exports.handler = async (event, context) => {
 				createdAt: { S: date.toISOString() },
 				updatedAt: { S: date.toISOString() },
 			},
-			TableName: process.env.USERTABLE,
+			TableName: "User-dp3c7ycdm5cljmekfvj2cpva3q-main", //process.env.USERTABLE,
 		};
 		await ddb.putItem(params).promise();
 		console.log("Success: Everything executed correctly");

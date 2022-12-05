@@ -6,6 +6,7 @@ import {
 	FETCH_COMPANY,
 	UPDATE_COMPANY,
 } from "../types";
+import Company from "../../models/Company";
 
 const pagesNumber = ["company", "person", "external_account"];
 
@@ -79,12 +80,18 @@ export default (state = initialStates, action) => {
 					: null,
 			};
 		case CREATE_COMPANY:
+			const company = new Company(
+				action.payload.id,
+				action.payload.name,
+				action.payload.accountID,
+				action.payload.url,
+				action.payload.status
+			);
 			return {
 				...state,
 				step: 1,
 				loading: false,
-				url: action.payload.url,
-				company: action.payload.company,
+				company,
 			};
 		case UPDATE_COMPANY:
 			return {

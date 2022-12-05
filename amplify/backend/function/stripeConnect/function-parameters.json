@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "api": {
+      "amplifyapp": [
+        "Query",
+        "Mutation"
+      ]
+    },
+    "storage": {
+      "Prestation:@model(appsync)": [
+        "read",
+        "update"
+      ],
+      "Company:@model(appsync)": [
+        "read",
+        "update"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

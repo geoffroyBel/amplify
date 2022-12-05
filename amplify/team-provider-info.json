@@ -9,11 +9,27 @@
       "UnauthRoleName": "amplify-amplifyapp-dev-221507-unauthRole",
       "StackName": "amplify-amplifyapp-dev-221507",
       "StackId": "arn:aws:cloudformation:eu-west-2:815265361638:stack/amplify-amplifyapp-dev-221507/bf604890-65f3-11ed-8c46-063891fdad04",
-      "AmplifyAppId": "d3nf05yof4qf88"
+      "AmplifyAppId": "d3nf05yof4qf88",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-amplifyapp-dev-221507-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-amplifyapp-dev-221507-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
         "amplifyappce60826e": {}
+      },
+      "function": {
+        "amplifyappce60826ePostConfirmation": {
+          "deploymentBucketName": "amplify-amplifyapp-dev-221507-deployment",
+          "s3Key": "amplify-builds/amplifyappce60826ePostConfirmation-644f52776145687a614f-build.zip"
+        },
+        "CreateStripeAccount": {
+          "deploymentBucketName": "amplify-amplifyapp-dev-221507-deployment",
+          "s3Key": "amplify-builds/CreateStripeAccount-4e753139783337747a64-build.zip"
+        },
+        "stripeConnect": {
+          "deploymentBucketName": "amplify-amplifyapp-dev-221507-deployment",
+          "s3Key": "amplify-builds/stripeConnect-6a647958574443633765-build.zip"
+        }
       }
     }
   }

@@ -1,11 +1,83 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY {
-	globalAuthRule: AuthRule = { allow: public }
-} # FOR TESTING ONLY!
-type Prestation @model {
+# # This "input" configures a global authorization rule to enable public access to
+# # all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
+# input AMPLIFY {
+# 	globalAuthRule: AuthRule = { allow: public }
+# } # FOR TESTING ONLY!
+type Mutation {
+	createAccount(input: AccountInput!): Account!
+		@function(name: "CreateStripeAccount-${env}")
+}
+
+input AccountInput {
+	id: String
+	company: AccountCompanyInput
+	individual: AccountIndividualInput
+}
+input AccountCompanyInput {
+	name: String
+	phone: String
+}
+input AccountIndividualInput {
+	first_name: String
+	last_name: String
+	email: String
+	phone: String
+}
+type Account {
+	accountID: String
+	url: String
+}
+
+type Prestation
+	@model
+	@auth(
+		rules: [
+			{ allow: groups, groups: ["admin"] }
+			{ allow: owner, ownerField: "owner" }
+			{ allow: public, operations: [read] }
+			{ allow: private, operations: [read] }
+		]
+	) {
 	id: ID!
 	name: String!
-	companyName: String
-		@index(name: "prestaByCompany", queryField: "prestaByCompany")
+	owner: String @index(name: "prestaByOwner", queryField: "prestaByOwner")
+	companyID: ID @index(name: "prestaByCompany")
+	company: Company @belongsTo(fields: ["companyID"])
+}
+
+type User
+	@model
+	@auth(
+		rules: [
+			{ allow: groups, groups: ["admin"] }
+			{ allow: owner, ownerField: "username", operations: [read] }
+		]
+	) {
+	id: ID!
+	username: String!
+	email: String!
+	customerID: String
+	company: Company @hasOne
+	# cart: [CartItem] @hasMany(indexName: "cartItemByUser", fields: ["id"])
+}
+
+type Company
+	@model
+	@auth(
+		rules: [
+			{ allow: groups, groups: ["admin"] }
+			{ allow: owner, ownerField: "companyOwner" }
+			{ allow: public, operations: [read] }
+			{ allow: private, operations: [read] }
+		]
+	) {
+	id: ID!
+	companyOwner: String
+	accountID: String @index(name: "getByStripeId", queryField: "getByStripeId")
+	name: String
+	status: String
+	prestations: [Prestation]
+		@hasMany(indexName: "prestaByCompany", fields: ["id"])
+	owner: User @belongsTo
+	# tarifs: [Tarif] @hasMany(indexName: "getCompanyTarifs", fields: ["id"])
 }

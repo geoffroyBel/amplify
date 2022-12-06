@@ -84,8 +84,8 @@
 				},
 				"Environment": {
 					"Variables": {
-						"END_POINT_PROD": { "ref": "endPointProd" },
-						"END_POINT_DEV": { "ref": "endPointDev" },
+						"END_POINT_PROD": { "Ref": "endPointProd" },
+						"END_POINT_DEV": { "Ref": "endPointDev" },
 						"ENV": {
 							"Ref": "env"
 						},

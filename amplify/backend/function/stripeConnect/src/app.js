@@ -12,20 +12,20 @@ var awsServerlessExpressMiddleware = require("aws-serverless-express/middleware"
 
 // Stripe parameters
 const stripe = require("stripe")("sk_test_h6xp0uBCgjfwslSFGASNX33P00kj71BsYV");
-const endpointSecret = "whsec_EXPDwaO3ug3XwelFUjhu3u7ygnl3gJUb";
+let endpointSecret = process.env.END_POINT_DEV;
 //Company-kvoqldofbzcixpevne7w6kpdqu-dev
 // declare a new express app
 // Table parameters
 let companyTable = "Company-kvoqldofbzcixpevne7w6kpdqu-dev";
 // Stripe parameters
 var docClient = new aws.DynamoDB.DocumentClient();
-if (process.env.ENV === "prod") {
+if (process.env.ENV === "main") {
 	// Set prod env
 	console.log("Prod env");
 	companyTable = "Company-dp3c7ycdm5cljmekfvj2cpva3q-main";
 	// Stripe parameters
 	// stripe = require("stripe")("sk_live_********");
-	endpointSecret = "whsec_dsrWDo8CMartpgO81py532GUHMQN8EmD";
+	endpointSecret = process.env.END_POINT_PROD;
 }
 var app = express();
 //app.use(bodyParser.json())
@@ -51,6 +51,8 @@ app.use(
 //https://www.youtube.com/watch?v=Yjv1zA-EGqA
 //https://vzwvqf3cjg.execute-api.eu-west-2.amazonaws.com/dev/webhook
 app.post("/webhook", async function (request, response) {
+	console.log("ouesh");
+	console.log(process.env.ENV);
 	const sig = request.headers["stripe-signature"];
 	let event;
 
@@ -105,6 +107,7 @@ app.post("/webhook", async function (request, response) {
 				console.log("Status code : 400, Error code : ", error.stack);
 				return response.status(400).json(error);
 			}
+
 			// Then define and call a function to handle the event account.updated
 			break;
 		case "checkout.session.completed":

@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
 				createdAt: { S: date.toISOString() },
 				updatedAt: { S: date.toISOString() },
 			},
-			TableName: "User-dp3c7ycdm5cljmekfvj2cpva3q-main", //process.env.USERTABLE,
+			TableName: process.env.USERTABLE,
 		};
 		await ddb.putItem(params).promise();
 		console.log("Success: Everything executed correctly");

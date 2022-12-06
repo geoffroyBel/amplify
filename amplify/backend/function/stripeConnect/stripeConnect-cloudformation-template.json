@@ -1,466 +1,460 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"7.6.20\",\"stackType\":\"function-Lambda\",\"metadata\":{}}",
-  "Parameters": {
-    "CloudWatchRule": {
-      "Type": "String",
-      "Default": "NONE",
-      "Description": " Schedule Expression"
-    },
-    "deploymentBucketName": {
-      "Type": "String"
-    },
-    "env": {
-      "Type": "String"
-    },
-    "s3Key": {
-      "Type": "String"
-    },
-    "apiamplifyappGraphQLAPIIdOutput": {
-      "Type": "String",
-      "Default": "apiamplifyappGraphQLAPIIdOutput"
-    },
-    "apiamplifyappGraphQLAPIEndpointOutput": {
-      "Type": "String",
-      "Default": "apiamplifyappGraphQLAPIEndpointOutput"
-    },
-    "apiamplifyappGraphQLAPIKeyOutput": {
-      "Type": "String",
-      "Default": "apiamplifyappGraphQLAPIKeyOutput"
-    }
-  },
-  "Conditions": {
-    "ShouldNotCreateEnvResources": {
-      "Fn::Equals": [
-        {
-          "Ref": "env"
-        },
-        "NONE"
-      ]
-    }
-  },
-  "Resources": {
-    "LambdaFunction": {
-      "Type": "AWS::Lambda::Function",
-      "Metadata": {
-        "aws:asset:path": "./src",
-        "aws:asset:property": "Code"
-      },
-      "Properties": {
-        "Code": {
-          "S3Bucket": {
-            "Ref": "deploymentBucketName"
-          },
-          "S3Key": {
-            "Ref": "s3Key"
-          }
-        },
-        "Handler": "index.handler",
-        "FunctionName": {
-          "Fn::If": [
-            "ShouldNotCreateEnvResources",
-            "stripeConnect",
-            {
-              "Fn::Join": [
-                "",
-                [
-                  "stripeConnect",
-                  "-",
-                  {
-                    "Ref": "env"
-                  }
-                ]
-              ]
-            }
-          ]
-        },
-        "Environment": {
-          "Variables": {
-            "ENV": {
-              "Ref": "env"
-            },
-            "REGION": {
-              "Ref": "AWS::Region"
-            },
-            "API_AMPLIFYAPP_GRAPHQLAPIIDOUTPUT": {
-              "Ref": "apiamplifyappGraphQLAPIIdOutput"
-            },
-            "API_AMPLIFYAPP_GRAPHQLAPIENDPOINTOUTPUT": {
-              "Ref": "apiamplifyappGraphQLAPIEndpointOutput"
-            },
-            "API_AMPLIFYAPP_GRAPHQLAPIKEYOUTPUT": {
-              "Ref": "apiamplifyappGraphQLAPIKeyOutput"
-            },
-            "API_AMPLIFYAPP_PRESTATIONTABLE_NAME": {
-              "Fn::ImportValue": {
-                "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
-              }
-            },
-            "API_AMPLIFYAPP_PRESTATIONTABLE_ARN": {
-              "Fn::Join": [
-                "",
-                [
-                  "arn:aws:dynamodb:",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  ":",
-                  {
-                    "Ref": "AWS::AccountId"
-                  },
-                  ":table/",
-                  {
-                    "Fn::ImportValue": {
-                      "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
-                    }
-                  }
-                ]
-              ]
-            },
-            "API_AMPLIFYAPP_COMPANYTABLE_NAME": {
-              "Fn::ImportValue": {
-                "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
-              }
-            },
-            "API_AMPLIFYAPP_COMPANYTABLE_ARN": {
-              "Fn::Join": [
-                "",
-                [
-                  "arn:aws:dynamodb:",
-                  {
-                    "Ref": "AWS::Region"
-                  },
-                  ":",
-                  {
-                    "Ref": "AWS::AccountId"
-                  },
-                  ":table/",
-                  {
-                    "Fn::ImportValue": {
-                      "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
-                    }
-                  }
-                ]
-              ]
-            }
-          }
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "LambdaExecutionRole",
-            "Arn"
-          ]
-        },
-        "Runtime": "nodejs14.x",
-        "Layers": [],
-        "Timeout": 25
-      }
-    },
-    "LambdaExecutionRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "RoleName": {
-          "Fn::If": [
-            "ShouldNotCreateEnvResources",
-            "amplifyappLambdaRole4220d25b",
-            {
-              "Fn::Join": [
-                "",
-                [
-                  "amplifyappLambdaRole4220d25b",
-                  "-",
-                  {
-                    "Ref": "env"
-                  }
-                ]
-              ]
-            }
-          ]
-        },
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "lambda.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
-              ]
-            }
-          ]
-        }
-      }
-    },
-    "lambdaexecutionpolicy": {
-      "DependsOn": [
-        "LambdaExecutionRole"
-      ],
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyName": "lambda-execution-policy",
-        "Roles": [
-          {
-            "Ref": "LambdaExecutionRole"
-          }
-        ],
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-              ],
-              "Resource": {
-                "Fn::Sub": [
-                  "arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*",
-                  {
-                    "region": {
-                      "Ref": "AWS::Region"
-                    },
-                    "account": {
-                      "Ref": "AWS::AccountId"
-                    },
-                    "lambda": {
-                      "Ref": "LambdaFunction"
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "dynamodb:PutItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:GetItem",
-                "dynamodb:Query",
-                "dynamodb:UpdateItem"
-              ],
-              "Resource": "arn:aws:dynamodb:*:*:table/*"
-            },
-            {
-              "Effect": "Allow",
-              "Action": "dynamodb:Query",
-              "Resource": "arn:aws:dynamodb:*:*:table/*/index/*"
-            }
-          ]
-        }
-      }
-    },
-    "AmplifyResourcesPolicy": {
-      "DependsOn": [
-        "LambdaExecutionRole"
-      ],
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyName": "amplify-lambda-execution-policy",
-        "Roles": [
-          {
-            "Ref": "LambdaExecutionRole"
-          }
-        ],
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "appsync:GraphQL"
-              ],
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:appsync:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":apis/",
-                      {
-                        "Ref": "apiamplifyappGraphQLAPIIdOutput"
-                      },
-                      "/types/Query/*"
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:appsync:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":apis/",
-                      {
-                        "Ref": "apiamplifyappGraphQLAPIIdOutput"
-                      },
-                      "/types/Mutation/*"
-                    ]
-                  ]
-                }
-              ]
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "dynamodb:Get*",
-                "dynamodb:BatchGetItem",
-                "dynamodb:List*",
-                "dynamodb:Describe*",
-                "dynamodb:Scan",
-                "dynamodb:Query",
-                "dynamodb:Update*",
-                "dynamodb:RestoreTable*"
-              ],
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:dynamodb:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":table/",
-                      {
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
-                        }
-                      }
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:dynamodb:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":table/",
-                      {
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
-                        }
-                      },
-                      "/index/*"
-                    ]
-                  ]
-                }
-              ]
-            },
-            {
-              "Effect": "Allow",
-              "Action": [
-                "dynamodb:Get*",
-                "dynamodb:BatchGetItem",
-                "dynamodb:List*",
-                "dynamodb:Describe*",
-                "dynamodb:Scan",
-                "dynamodb:Query",
-                "dynamodb:Update*",
-                "dynamodb:RestoreTable*"
-              ],
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:dynamodb:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":table/",
-                      {
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
-                        }
-                      }
-                    ]
-                  ]
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:dynamodb:",
-                      {
-                        "Ref": "AWS::Region"
-                      },
-                      ":",
-                      {
-                        "Ref": "AWS::AccountId"
-                      },
-                      ":table/",
-                      {
-                        "Fn::ImportValue": {
-                          "Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
-                        }
-                      },
-                      "/index/*"
-                    ]
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
-  },
-  "Outputs": {
-    "Name": {
-      "Value": {
-        "Ref": "LambdaFunction"
-      }
-    },
-    "Arn": {
-      "Value": {
-        "Fn::GetAtt": [
-          "LambdaFunction",
-          "Arn"
-        ]
-      }
-    },
-    "Region": {
-      "Value": {
-        "Ref": "AWS::Region"
-      }
-    },
-    "LambdaExecutionRole": {
-      "Value": {
-        "Ref": "LambdaExecutionRole"
-      }
-    }
-  }
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"7.6.20\",\"stackType\":\"function-Lambda\",\"metadata\":{}}",
+	"Parameters": {
+		"CloudWatchRule": {
+			"Type": "String",
+			"Default": "NONE",
+			"Description": " Schedule Expression"
+		},
+		"deploymentBucketName": {
+			"Type": "String"
+		},
+		"env": {
+			"Type": "String"
+		},
+		"s3Key": {
+			"Type": "String"
+		},
+		"apiamplifyappGraphQLAPIIdOutput": {
+			"Type": "String",
+			"Default": "apiamplifyappGraphQLAPIIdOutput"
+		},
+		"apiamplifyappGraphQLAPIEndpointOutput": {
+			"Type": "String",
+			"Default": "apiamplifyappGraphQLAPIEndpointOutput"
+		},
+		"apiamplifyappGraphQLAPIKeyOutput": {
+			"Type": "String",
+			"Default": "apiamplifyappGraphQLAPIKeyOutput"
+		},
+		"endPointDev": {
+			"Type": "String",
+			"Default": "whsec_EXPDwaO3ug3XwelFUjhu3u7ygnl3gJUb"
+		},
+		"endPointProd": {
+			"Type": "String",
+			"Default": "whsec_dsrWDo8CMartpgO81py532GUHMQN8EmD"
+		}
+	},
+	"Conditions": {
+		"ShouldNotCreateEnvResources": {
+			"Fn::Equals": [
+				{
+					"Ref": "env"
+				},
+				"NONE"
+			]
+		}
+	},
+	"Resources": {
+		"LambdaFunction": {
+			"Type": "AWS::Lambda::Function",
+			"Metadata": {
+				"aws:asset:path": "./src",
+				"aws:asset:property": "Code"
+			},
+			"Properties": {
+				"Code": {
+					"S3Bucket": {
+						"Ref": "deploymentBucketName"
+					},
+					"S3Key": {
+						"Ref": "s3Key"
+					}
+				},
+				"Handler": "index.handler",
+				"FunctionName": {
+					"Fn::If": [
+						"ShouldNotCreateEnvResources",
+						"stripeConnect",
+						{
+							"Fn::Join": [
+								"",
+								[
+									"stripeConnect",
+									"-",
+									{
+										"Ref": "env"
+									}
+								]
+							]
+						}
+					]
+				},
+				"Environment": {
+					"Variables": {
+						"END_POINT_PROD": { "ref": "endPointProd" },
+						"END_POINT_DEV": { "ref": "endPointDev" },
+						"ENV": {
+							"Ref": "env"
+						},
+						"REGION": {
+							"Ref": "AWS::Region"
+						},
+						"API_AMPLIFYAPP_GRAPHQLAPIIDOUTPUT": {
+							"Ref": "apiamplifyappGraphQLAPIIdOutput"
+						},
+						"API_AMPLIFYAPP_GRAPHQLAPIENDPOINTOUTPUT": {
+							"Ref": "apiamplifyappGraphQLAPIEndpointOutput"
+						},
+						"API_AMPLIFYAPP_GRAPHQLAPIKEYOUTPUT": {
+							"Ref": "apiamplifyappGraphQLAPIKeyOutput"
+						},
+						"API_AMPLIFYAPP_PRESTATIONTABLE_NAME": {
+							"Fn::ImportValue": {
+								"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
+							}
+						},
+						"API_AMPLIFYAPP_PRESTATIONTABLE_ARN": {
+							"Fn::Join": [
+								"",
+								[
+									"arn:aws:dynamodb:",
+									{
+										"Ref": "AWS::Region"
+									},
+									":",
+									{
+										"Ref": "AWS::AccountId"
+									},
+									":table/",
+									{
+										"Fn::ImportValue": {
+											"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
+										}
+									}
+								]
+							]
+						},
+						"API_AMPLIFYAPP_COMPANYTABLE_NAME": {
+							"Fn::ImportValue": {
+								"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
+							}
+						},
+						"API_AMPLIFYAPP_COMPANYTABLE_ARN": {
+							"Fn::Join": [
+								"",
+								[
+									"arn:aws:dynamodb:",
+									{
+										"Ref": "AWS::Region"
+									},
+									":",
+									{
+										"Ref": "AWS::AccountId"
+									},
+									":table/",
+									{
+										"Fn::ImportValue": {
+											"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
+										}
+									}
+								]
+							]
+						}
+					}
+				},
+				"Role": {
+					"Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+				},
+				"Runtime": "nodejs14.x",
+				"Layers": [],
+				"Timeout": 25
+			}
+		},
+		"LambdaExecutionRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": {
+					"Fn::If": [
+						"ShouldNotCreateEnvResources",
+						"amplifyappLambdaRole4220d25b",
+						{
+							"Fn::Join": [
+								"",
+								[
+									"amplifyappLambdaRole4220d25b",
+									"-",
+									{
+										"Ref": "env"
+									}
+								]
+							]
+						}
+					]
+				},
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": ["lambda.amazonaws.com"]
+							},
+							"Action": ["sts:AssumeRole"]
+						}
+					]
+				}
+			}
+		},
+		"lambdaexecutionpolicy": {
+			"DependsOn": ["LambdaExecutionRole"],
+			"Type": "AWS::IAM::Policy",
+			"Properties": {
+				"PolicyName": "lambda-execution-policy",
+				"Roles": [
+					{
+						"Ref": "LambdaExecutionRole"
+					}
+				],
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": [
+								"logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:PutLogEvents"
+							],
+							"Resource": {
+								"Fn::Sub": [
+									"arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*",
+									{
+										"region": {
+											"Ref": "AWS::Region"
+										},
+										"account": {
+											"Ref": "AWS::AccountId"
+										},
+										"lambda": {
+											"Ref": "LambdaFunction"
+										}
+									}
+								]
+							}
+						},
+						{
+							"Effect": "Allow",
+							"Action": [
+								"dynamodb:PutItem",
+								"dynamodb:DeleteItem",
+								"dynamodb:GetItem",
+								"dynamodb:Query",
+								"dynamodb:UpdateItem"
+							],
+							"Resource": "arn:aws:dynamodb:*:*:table/*"
+						},
+						{
+							"Effect": "Allow",
+							"Action": "dynamodb:Query",
+							"Resource": "arn:aws:dynamodb:*:*:table/*/index/*"
+						}
+					]
+				}
+			}
+		},
+		"AmplifyResourcesPolicy": {
+			"DependsOn": ["LambdaExecutionRole"],
+			"Type": "AWS::IAM::Policy",
+			"Properties": {
+				"PolicyName": "amplify-lambda-execution-policy",
+				"Roles": [
+					{
+						"Ref": "LambdaExecutionRole"
+					}
+				],
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": ["appsync:GraphQL"],
+							"Resource": [
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:appsync:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":apis/",
+											{
+												"Ref": "apiamplifyappGraphQLAPIIdOutput"
+											},
+											"/types/Query/*"
+										]
+									]
+								},
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:appsync:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":apis/",
+											{
+												"Ref": "apiamplifyappGraphQLAPIIdOutput"
+											},
+											"/types/Mutation/*"
+										]
+									]
+								}
+							]
+						},
+						{
+							"Effect": "Allow",
+							"Action": [
+								"dynamodb:Get*",
+								"dynamodb:BatchGetItem",
+								"dynamodb:List*",
+								"dynamodb:Describe*",
+								"dynamodb:Scan",
+								"dynamodb:Query",
+								"dynamodb:Update*",
+								"dynamodb:RestoreTable*"
+							],
+							"Resource": [
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:dynamodb:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":table/",
+											{
+												"Fn::ImportValue": {
+													"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
+												}
+											}
+										]
+									]
+								},
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:dynamodb:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":table/",
+											{
+												"Fn::ImportValue": {
+													"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:PrestationTable:Name"
+												}
+											},
+											"/index/*"
+										]
+									]
+								}
+							]
+						},
+						{
+							"Effect": "Allow",
+							"Action": [
+								"dynamodb:Get*",
+								"dynamodb:BatchGetItem",
+								"dynamodb:List*",
+								"dynamodb:Describe*",
+								"dynamodb:Scan",
+								"dynamodb:Query",
+								"dynamodb:Update*",
+								"dynamodb:RestoreTable*"
+							],
+							"Resource": [
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:dynamodb:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":table/",
+											{
+												"Fn::ImportValue": {
+													"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
+												}
+											}
+										]
+									]
+								},
+								{
+									"Fn::Join": [
+										"",
+										[
+											"arn:aws:dynamodb:",
+											{
+												"Ref": "AWS::Region"
+											},
+											":",
+											{
+												"Ref": "AWS::AccountId"
+											},
+											":table/",
+											{
+												"Fn::ImportValue": {
+													"Fn::Sub": "${apiamplifyappGraphQLAPIIdOutput}:GetAtt:CompanyTable:Name"
+												}
+											},
+											"/index/*"
+										]
+									]
+								}
+							]
+						}
+					]
+				}
+			}
+		}
+	},
+	"Outputs": {
+		"Name": {
+			"Value": {
+				"Ref": "LambdaFunction"
+			}
+		},
+		"Arn": {
+			"Value": {
+				"Fn::GetAtt": ["LambdaFunction", "Arn"]
+			}
+		},
+		"Region": {
+			"Value": {
+				"Ref": "AWS::Region"
+			}
+		},
+		"LambdaExecutionRole": {
+			"Value": {
+				"Ref": "LambdaExecutionRole"
+			}
+		}
+	}
 }
